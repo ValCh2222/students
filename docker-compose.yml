@@ -1,0 +1,39 @@
+﻿services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    volumes:
+      - postgres:/data/postgres
+      - $students:/data/database/students.csv
+      - $initdb:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    env_file:
+      - $env
+    networks:
+      net:
+        ipv4_address: 192.168.150.2
+  
+  console_app:
+    container_name: console_app
+    image: console_app
+    build:
+      context: ./ConsoleApp
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      net:
+        ipv4_address: 192.168.150.3
+
+
+volumes:
+  postgres:
+
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.150.0/24
+          gateway: 192.168.150.1
